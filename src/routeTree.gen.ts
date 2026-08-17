@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as SymptomCheckRouteImport } from './routes/symptom-check'
 import { Route as ApiPhotoRouteImport } from './routes/api/photo'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SymptomCheckRoute = SymptomCheckRouteImport.update({
+  id: '/symptom-check',
+  path: '/symptom-check',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPhotoRoute = ApiPhotoRouteImport.update({
   id: '/api/photo',
   path: '/api/photo',
@@ -32,30 +38,34 @@ const ApiPhotoRoute = ApiPhotoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/api/photo'
+  fullPaths: '/' | '/about' | '/symptom-check' | '/api/photo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/api/photo'
-  id: '__root__' | '/' | '/about' | '/api/photo'
+  to: '/' | '/about' | '/symptom-check' | '/api/photo'
+  id: '__root__' | '/' | '/about' | '/symptom-check' | '/api/photo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  SymptomCheckRoute: typeof SymptomCheckRoute
   ApiPhotoRoute: typeof ApiPhotoRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/symptom-check': {
+      id: '/symptom-check'
+      path: '/symptom-check'
+      fullPath: '/symptom-check'
+      preLoaderRoute: typeof SymptomCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/photo': {
       id: '/api/photo'
       path: '/api/photo'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  SymptomCheckRoute: SymptomCheckRoute,
   ApiPhotoRoute: ApiPhotoRoute,
 }
 export const routeTree = rootRouteImport
