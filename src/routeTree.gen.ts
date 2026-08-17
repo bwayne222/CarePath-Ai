@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as FindCareRouteImport } from './routes/find-care'
+import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SymptomCheckRouteImport } from './routes/symptom-check'
 import { Route as ApiPhotoRouteImport } from './routes/api/photo'
 
@@ -30,6 +31,11 @@ const FindCareRoute = FindCareRouteImport.update({
   path: '/find-care',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SymptomCheckRoute = SymptomCheckRouteImport.update({
   id: '/symptom-check',
   path: '/symptom-check',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/find-care': typeof FindCareRoute
+  '/saved': typeof SavedRoute
   '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/find-care': typeof FindCareRoute
+  '/saved': typeof SavedRoute
   '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
 }
@@ -60,22 +68,31 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/find-care': typeof FindCareRoute
+  '/saved': typeof SavedRoute
   '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/find-care' | '/symptom-check' | '/api/photo'
+  fullPaths:
+    '/' | '/about' | '/find-care' | '/saved' | '/symptom-check' | '/api/photo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/find-care' | '/symptom-check' | '/api/photo'
+  to: '/' | '/about' | '/find-care' | '/saved' | '/symptom-check' | '/api/photo'
   id:
-    '__root__' | '/' | '/about' | '/find-care' | '/symptom-check' | '/api/photo'
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/find-care'
+    | '/saved'
+    | '/symptom-check'
+    | '/api/photo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   FindCareRoute: typeof FindCareRoute
+  SavedRoute: typeof SavedRoute
   SymptomCheckRoute: typeof SymptomCheckRoute
   ApiPhotoRoute: typeof ApiPhotoRoute
 }
@@ -103,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FindCareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/symptom-check': {
       id: '/symptom-check'
       path: '/symptom-check'
@@ -124,6 +148,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   FindCareRoute: FindCareRoute,
+  SavedRoute: SavedRoute,
   SymptomCheckRoute: SymptomCheckRoute,
   ApiPhotoRoute: ApiPhotoRoute,
 }
