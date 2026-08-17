@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as FindCareRouteImport } from './routes/find-care'
+import { Route as SavedRouteImport } from './routes/saved'
+import { Route as SymptomCheckRouteImport } from './routes/symptom-check'
+import { Route as ApiPhotoRouteImport } from './routes/api/photo'
+import { Route as ProviderPlaceIdRouteImport } from './routes/provider.$placeId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindCareRoute = FindCareRouteImport.update({
+  id: '/find-care',
+  path: '/find-care',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SymptomCheckRoute = SymptomCheckRouteImport.update({
+  id: '/symptom-check',
+  path: '/symptom-check',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPhotoRoute = ApiPhotoRouteImport.update({
+  id: '/api/photo',
+  path: '/api/photo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProviderPlaceIdRoute = ProviderPlaceIdRouteImport.update({
+  id: '/provider/$placeId',
+  path: '/provider/$placeId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/find-care': typeof FindCareRoute
+  '/saved': typeof SavedRoute
+  '/symptom-check': typeof SymptomCheckRoute
+  '/api/photo': typeof ApiPhotoRoute
+  '/provider/$placeId': typeof ProviderPlaceIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/find-care': typeof FindCareRoute
+  '/saved': typeof SavedRoute
+  '/symptom-check': typeof SymptomCheckRoute
+  '/api/photo': typeof ApiPhotoRoute
+  '/provider/$placeId': typeof ProviderPlaceIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/find-care': typeof FindCareRoute
+  '/saved': typeof SavedRoute
+  '/symptom-check': typeof SymptomCheckRoute
+  '/api/photo': typeof ApiPhotoRoute
+  '/provider/$placeId': typeof ProviderPlaceIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/find-care'
+    | '/saved'
+    | '/symptom-check'
+    | '/api/photo'
+    | '/provider/$placeId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/find-care'
+    | '/saved'
+    | '/symptom-check'
+    | '/api/photo'
+    | '/provider/$placeId'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/find-care'
+    | '/saved'
+    | '/symptom-check'
+    | '/api/photo'
+    | '/provider/$placeId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  FindCareRoute: typeof FindCareRoute
+  SavedRoute: typeof SavedRoute
+  SymptomCheckRoute: typeof SymptomCheckRoute
+  ApiPhotoRoute: typeof ApiPhotoRoute
+  ProviderPlaceIdRoute: typeof ProviderPlaceIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find-care': {
+      id: '/find-care'
+      path: '/find-care'
+      fullPath: '/find-care'
+      preLoaderRoute: typeof FindCareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/symptom-check': {
+      id: '/symptom-check'
+      path: '/symptom-check'
+      fullPath: '/symptom-check'
+      preLoaderRoute: typeof SymptomCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/photo': {
+      id: '/api/photo'
+      path: '/api/photo'
+      fullPath: '/api/photo'
+      preLoaderRoute: typeof ApiPhotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/provider/$placeId': {
+      id: '/provider/$placeId'
+      path: '/provider/$placeId'
+      fullPath: '/provider/$placeId'
+      preLoaderRoute: typeof ProviderPlaceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  FindCareRoute: FindCareRoute,
+  SavedRoute: SavedRoute,
+  SymptomCheckRoute: SymptomCheckRoute,
+  ApiPhotoRoute: ApiPhotoRoute,
+  ProviderPlaceIdRoute: ProviderPlaceIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
