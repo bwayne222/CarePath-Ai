@@ -19,7 +19,11 @@ import {
 import { DEMO_PROVIDERS } from "@/lib/demo-data";
 import type { Provider, SearchResult } from "@/lib/types";
 
-type SearchParams = { specialty?: string; emergency?: boolean; city?: string };
+type SearchParams = {
+  specialty?: string | undefined;
+  emergency?: boolean | undefined;
+  city?: string | undefined;
+};
 
 export const Route = createFileRoute("/find-care")({
   validateSearch: (search: Record<string, unknown>): SearchParams => ({

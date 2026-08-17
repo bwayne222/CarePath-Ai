@@ -1,7 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { AlertTriangle, PhoneCall } from "lucide-react";
 
-export function EmergencyPanel({ redFlags, reason }: { redFlags: string[]; reason?: string }) {
+export function EmergencyPanel({
+  redFlags,
+  reason,
+}: {
+  redFlags: string[];
+  reason?: string | undefined;
+}) {
   return (
     <section
       role="alert"
