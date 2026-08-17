@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as FindCareRouteImport } from './routes/find-care'
 import { Route as SymptomCheckRouteImport } from './routes/symptom-check'
 import { Route as ApiPhotoRouteImport } from './routes/api/photo'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindCareRoute = FindCareRouteImport.update({
+  id: '/find-care',
+  path: '/find-care',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SymptomCheckRoute = SymptomCheckRouteImport.update({
@@ -38,12 +44,14 @@ const ApiPhotoRoute = ApiPhotoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/find-care': typeof FindCareRoute
   '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/find-care': typeof FindCareRoute
   '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
 }
@@ -51,20 +59,23 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/find-care': typeof FindCareRoute
   '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/symptom-check' | '/api/photo'
+  fullPaths: '/' | '/about' | '/find-care' | '/symptom-check' | '/api/photo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/symptom-check' | '/api/photo'
-  id: '__root__' | '/' | '/about' | '/symptom-check' | '/api/photo'
+  to: '/' | '/about' | '/find-care' | '/symptom-check' | '/api/photo'
+  id:
+    '__root__' | '/' | '/about' | '/find-care' | '/symptom-check' | '/api/photo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  FindCareRoute: typeof FindCareRoute
   SymptomCheckRoute: typeof SymptomCheckRoute
   ApiPhotoRoute: typeof ApiPhotoRoute
 }
@@ -83,6 +94,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find-care': {
+      id: '/find-care'
+      path: '/find-care'
+      fullPath: '/find-care'
+      preLoaderRoute: typeof FindCareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/symptom-check': {
@@ -105,6 +123,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  FindCareRoute: FindCareRoute,
   SymptomCheckRoute: SymptomCheckRoute,
   ApiPhotoRoute: ApiPhotoRoute,
 }
