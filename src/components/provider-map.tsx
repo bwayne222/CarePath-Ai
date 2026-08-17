@@ -1,3 +1,4 @@
+/// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
 import { Crosshair, RefreshCw } from "lucide-react";
 import type { Provider } from "@/lib/types";
