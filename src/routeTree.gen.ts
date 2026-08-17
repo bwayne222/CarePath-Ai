@@ -15,6 +15,7 @@ import { Route as FindCareRouteImport } from './routes/find-care'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SymptomCheckRouteImport } from './routes/symptom-check'
 import { Route as ApiPhotoRouteImport } from './routes/api/photo'
+import { Route as ProviderPlaceIdRouteImport } from './routes/provider.$placeId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const ApiPhotoRoute = ApiPhotoRouteImport.update({
   path: '/api/photo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProviderPlaceIdRoute = ProviderPlaceIdRouteImport.update({
+  id: '/provider/$placeId',
+  path: '/provider/$placeId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/saved': typeof SavedRoute
   '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
+  '/provider/$placeId': typeof ProviderPlaceIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/saved': typeof SavedRoute
   '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
+  '/provider/$placeId': typeof ProviderPlaceIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,27 @@ export interface FileRoutesById {
   '/saved': typeof SavedRoute
   '/symptom-check': typeof SymptomCheckRoute
   '/api/photo': typeof ApiPhotoRoute
+  '/provider/$placeId': typeof ProviderPlaceIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/about' | '/find-care' | '/saved' | '/symptom-check' | '/api/photo'
+    | '/'
+    | '/about'
+    | '/find-care'
+    | '/saved'
+    | '/symptom-check'
+    | '/api/photo'
+    | '/provider/$placeId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/find-care' | '/saved' | '/symptom-check' | '/api/photo'
+  to:
+    | '/'
+    | '/about'
+    | '/find-care'
+    | '/saved'
+    | '/symptom-check'
+    | '/api/photo'
+    | '/provider/$placeId'
   id:
     | '__root__'
     | '/'
@@ -86,6 +108,7 @@ export interface FileRouteTypes {
     | '/saved'
     | '/symptom-check'
     | '/api/photo'
+    | '/provider/$placeId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,6 +118,7 @@ export interface RootRouteChildren {
   SavedRoute: typeof SavedRoute
   SymptomCheckRoute: typeof SymptomCheckRoute
   ApiPhotoRoute: typeof ApiPhotoRoute
+  ProviderPlaceIdRoute: typeof ProviderPlaceIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -141,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPhotoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/provider/$placeId': {
+      id: '/provider/$placeId'
+      path: '/provider/$placeId'
+      fullPath: '/provider/$placeId'
+      preLoaderRoute: typeof ProviderPlaceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -151,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   SavedRoute: SavedRoute,
   SymptomCheckRoute: SymptomCheckRoute,
   ApiPhotoRoute: ApiPhotoRoute,
+  ProviderPlaceIdRoute: ProviderPlaceIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
