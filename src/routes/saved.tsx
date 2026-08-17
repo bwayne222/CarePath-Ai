@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bookmark, Trash2 } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { ProviderCard } from "@/components/provider-card";
-import { clearSaved, useCareSession } from "@/lib/care-session";
+import { clearSaved, useSavedProviders } from "@/lib/care-session";
 
 export const Route = createFileRoute("/saved")({
   head: () => ({
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/saved")({
 });
 
 function SavedPage() {
-  const { saved } = useCareSession();
+  const saved = useSavedProviders();
 
   return (
     <div className="min-h-screen pb-24 md:pb-0">

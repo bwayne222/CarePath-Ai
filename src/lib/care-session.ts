@@ -76,6 +76,10 @@ export function useSavedProviders() {
   return saved;
 }
 
+export function clearSaved() {
+  write(SAVED_KEY, [], "local");
+}
+
 export function useDemoMode() {
   const [demo] = useStoreValue<boolean>(getDemoMode);
   return demo;
