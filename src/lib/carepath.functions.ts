@@ -34,7 +34,14 @@ export const findProviders = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => searchInput.parse(input))
   .handler(async ({ data }) => {
     const { searchProviders } = await import("./places.server");
-    return searchProviders(data);
+    return searchProviders({
+      specialty: data.specialty,
+      latitude: data.latitude ?? null,
+      longitude: data.longitude ?? null,
+      city: data.city ?? null,
+      radiusKm: data.radiusKm ?? null,
+      emergency: data.emergency ?? null,
+    });
   });
 
 export const providerDetails = createServerFn({ method: "POST" })
