@@ -55,8 +55,9 @@ export function toggleSaved(provider: Provider, specialty: string) {
   return !exists;
 }
 
-function useStoreValue<T>(getter: () => T): [T, () => void] {
-  const [value, setValue] = useState<T>(getter);
+function useStoreValue<T>(getter: () => T, initial: T): [T, () => void] {
+  // Start from a server-safe default so SSR and first client render match.
+  const [value, setValue] = useState<T>(initial);
   const refresh = useCallback(() => setValue(getter()), [getter]);
   useEffect(() => {
     refresh();
@@ -72,7 +73,7 @@ function useStoreValue<T>(getter: () => T): [T, () => void] {
 }
 
 export function useSavedProviders() {
-  const [saved] = useStoreValue<SavedProvider[]>(getSaved);
+  const [saved] = useStoreValue<SavedProvider[]>(getSaved, []);
   return saved;
 }
 
@@ -81,13 +82,13 @@ export function clearSaved() {
 }
 
 export function useDemoMode() {
-  const [demo] = useStoreValue<boolean>(getDemoMode);
+  const [demo] = useStoreValue<boolean>(getDemoMode, false);
   return demo;
 }
 
 export function useCareSession() {
-  const [assessment] = useStoreValue<Assessment | null>(getAssessment);
-  const [location] = useStoreValue<CareLocation | null>(getLocation);
+  const [assessment] = useStoreValue<Assessment | null>(getAssessment, null);
+  const [location] = useStoreValue<CareLocation | null>(getLocation, null);
   return { assessment, location };
 }
 
