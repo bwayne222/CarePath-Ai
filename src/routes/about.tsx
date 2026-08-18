@@ -91,6 +91,21 @@ function AboutPage() {
         </section>
 
         <p className="mt-8 rounded-xl bg-surface p-4 text-xs text-muted-foreground">
+        <section className="card-soft mt-4 p-5">
+          <h2 className="text-lg font-semibold">Credits</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            CarePath AI was designed and built by <strong>Sannan Ali Malik</strong> for the
+            UnivaBio student health-tech competition. For questions, feedback or demo requests:
+          </p>
+          <a
+            href="mailto:maliksannanali12345@gmail.com"
+            className="focus-ring mt-3 inline-flex rounded-xl border border-border px-4 py-2.5 text-sm font-semibold hover:bg-secondary"
+          >
+            maliksannanali12345@gmail.com
+          </a>
+        </section>
+
+        <p className="mt-8 rounded-xl bg-surface p-4 text-xs text-muted-foreground">
           AI guidance is informational and does not replace professional medical diagnosis or
           treatment. In an emergency, contact your local emergency service immediately.
         </p>
