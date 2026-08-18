@@ -90,7 +90,6 @@ function AboutPage() {
           </button>
         </section>
 
-        <p className="mt-8 rounded-xl bg-surface p-4 text-xs text-muted-foreground">
         <section className="card-soft mt-4 p-5">
           <h2 className="text-lg font-semibold">Credits</h2>
           <p className="mt-2 text-sm text-muted-foreground">
