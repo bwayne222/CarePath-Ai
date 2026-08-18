@@ -3,34 +3,98 @@ import { z } from "zod";
 import { CHAT_MODEL, createLovableAiGatewayProvider, requireAiKey } from "./ai-gateway.server";
 import type { ChatTurn, ProviderReview, ReviewInsights, TriageTurn } from "./types";
 
-const assessmentSchema = z.object({
-  summary: z.string(),
-  collected: z.object({
-    symptoms: z.string(),
-    duration: z.string(),
-    severity: z.string(),
-    related_symptoms: z.string(),
-  }),
-  possible_conditions: z.array(
-    z.object({
-      name: z.string(),
-      explanation: z.string(),
-      why_relevant: z.string(),
-    }),
-  ),
-  recommended_specialty: z.string(),
-  urgency: z.enum(["emergency", "urgent", "routine"]),
-  urgency_reason: z.string(),
-  red_flags: z.array(z.string()),
-  safety_message: z.string(),
+/**
+ * Kept deliberately permissive: the model regularly omits or nulls fields, and a
+ * strict schema turns that into a hard "response did not match schema" failure.
+ * Everything is normalised into the strict app shape by `normaliseTurn` below.
+ */
+const looseAssessmentSchema = z.object({
+  summary: z.string().nullish(),
+  collected: z
+    .object({
+      symptoms: z.string().nullish(),
+      duration: z.string().nullish(),
+      severity: z.string().nullish(),
+      related_symptoms: z.string().nullish(),
+    })
+    .nullish(),
+  possible_conditions: z
+    .array(
+      z.object({
+        name: z.string().nullish(),
+        explanation: z.string().nullish(),
+        why_relevant: z.string().nullish(),
+      }),
+    )
+    .nullish(),
+  recommended_specialty: z.string().nullish(),
+  urgency: z.string().nullish(),
+  urgency_reason: z.string().nullish(),
+  red_flags: z.array(z.string()).nullish(),
+  safety_message: z.string().nullish(),
 });
 
 const turnSchema = z.object({
-  reply: z.string(),
-  phase: z.enum(["asking", "assessment"]),
-  quick_replies: z.array(z.string()),
-  assessment: assessmentSchema.nullable(),
+  reply: z.string().nullish(),
+  phase: z.string().nullish(),
+  quick_replies: z.array(z.string()).nullish(),
+  assessment: looseAssessmentSchema.nullish(),
 });
+
+type LooseTurn = z.infer<typeof turnSchema>;
+
+const text = (v: unknown, fallback = "") =>
+  typeof v === "string" && v.trim().length > 0 ? v.trim() : fallback;
+
+function normaliseTurn(raw: LooseTurn): TriageTurn {
+  const a = raw.assessment;
+  const hasAssessment =
+    !!a && (text(a.summary) !== "" || (a.possible_conditions?.length ?? 0) > 0);
+  const phase = text(raw.phase) === "assessment" && hasAssessment ? "assessment" : "asking";
+
+  if (phase === "asking" || !a) {
+    return {
+      reply: text(raw.reply, "Could you tell me a little more about what you're experiencing?"),
+      phase: "asking",
+      quick_replies: (raw.quick_replies ?? []).filter((q) => text(q) !== "").slice(0, 5),
+      assessment: null,
+    };
+  }
+
+  const urgencyRaw = text(a.urgency, "routine").toLowerCase();
+  const urgency =
+    urgencyRaw === "emergency" || urgencyRaw === "urgent" ? urgencyRaw : ("routine" as const);
+
+  return {
+    reply: text(raw.reply, "Here's a summary of what you've described."),
+    phase: "assessment",
+    quick_replies: [],
+    assessment: {
+      summary: text(a.summary),
+      collected: {
+        symptoms: text(a.collected?.symptoms),
+        duration: text(a.collected?.duration),
+        severity: text(a.collected?.severity),
+        related_symptoms: text(a.collected?.related_symptoms),
+      },
+      possible_conditions: (a.possible_conditions ?? [])
+        .map((c) => ({
+          name: text(c.name),
+          explanation: text(c.explanation),
+          why_relevant: text(c.why_relevant),
+        }))
+        .filter((c) => c.name !== ""),
+      recommended_specialty: text(a.recommended_specialty, "General Physician"),
+      urgency,
+      urgency_reason: text(a.urgency_reason),
+      red_flags: (a.red_flags ?? []).filter((r) => text(r) !== ""),
+      safety_message: text(
+        a.safety_message,
+        "This is guidance only, not a diagnosis. If your symptoms worsen or you feel unsafe, seek emergency care immediately.",
+      ),
+    },
+  };
+}
 
 const SYSTEM_PROMPT = `You are CarePath AI, a healthcare navigation and symptom guidance assistant. You are NOT a diagnostic device and never replace a clinician.
 
@@ -48,6 +112,24 @@ RULES
 - When phase is "asking", assessment must be null. When phase is "assessment", assessment must be filled and reply should be one short sentence introducing the summary.
 - Keep replies warm, plain-language and brief (max ~45 words).`;
 
+function extractJson(raw: string): unknown {
+  const trimmed = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "");
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    const start = trimmed.indexOf("{");
+    const end = trimmed.lastIndexOf("}");
+    if (start >= 0 && end > start) {
+      try {
+        return JSON.parse(trimmed.slice(start, end + 1));
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+}
+
 export async function runTriageTurn(messages: ChatTurn[]): Promise<TriageTurn> {
   const gateway = createLovableAiGatewayProvider(requireAiKey());
   try {
@@ -57,16 +139,11 @@ export async function runTriageTurn(messages: ChatTurn[]): Promise<TriageTurn> {
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
       output: Output.object({ schema: turnSchema }),
     });
-    const turn = output as TriageTurn;
-    if (turn.phase === "asking") turn.assessment = null;
-    return turn;
+    return normaliseTurn(output as LooseTurn);
   } catch (error) {
     if (NoObjectGeneratedError.isInstance(error) && error.text) {
-      try {
-        return turnSchema.parse(JSON.parse(error.text)) as TriageTurn;
-      } catch {
-        /* fall through */
-      }
+      const parsed = turnSchema.safeParse(extractJson(error.text));
+      if (parsed.success) return normaliseTurn(parsed.data);
     }
     throw error;
   }
