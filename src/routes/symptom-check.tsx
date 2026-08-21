@@ -155,10 +155,18 @@ function SymptomCheckPage() {
 
           {mutation.isPending ? (
             <div className="flex gap-2.5">
-              <span className="mt-0.5 size-8 shrink-0 rounded-xl bg-surface" />
-              <div className="w-48 space-y-2 rounded-2xl border border-border bg-card p-4">
-                <div className="h-3 animate-pulse rounded bg-surface" />
-                <div className="h-3 w-2/3 animate-pulse rounded bg-surface" />
+              <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
+                <Stethoscope className="size-4 text-teal" aria-hidden />
+              </span>
+              <div className="min-w-[12rem] rounded-2xl border border-border bg-card p-4 shadow-soft">
+                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                  <Loader2 className="size-3.5 animate-spin text-teal" aria-hidden />
+                  <span>CarePath AI is thinking…</span>
+                </div>
+                <div className="mt-3 space-y-2">
+                  <div className="h-3 w-40 animate-pulse rounded bg-surface" />
+                  <div className="h-3 w-28 animate-pulse rounded bg-surface" />
+                </div>
               </div>
             </div>
           ) : null}
