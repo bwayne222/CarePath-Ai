@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, RotateCcw, Send, Stethoscope } from "lucide-react";
+import { ArrowLeft, Loader2, RotateCcw, Send, Stethoscope } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { EmergencyPanel } from "@/components/emergency-panel";
 import { triageTurn } from "@/lib/carepath.functions";
