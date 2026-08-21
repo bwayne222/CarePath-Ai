@@ -224,6 +224,7 @@ function SymptomCheckPage() {
               id="symptom-input"
               rows={1}
               value={input}
+              disabled={mutation.isPending}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
@@ -231,14 +232,17 @@ function SymptomCheckPage() {
                   send(input);
                 }
               }}
-              placeholder="Describe what you're experiencing…"
-              className="focus-ring max-h-32 min-h-11 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none"
+              placeholder={
+                mutation.isPending ? "CarePath AI is thinking…" : "Describe what you're experiencing…"
+              }
+              className="focus-ring max-h-32 min-h-11 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-60"
             />
             {messages.some((m) => m.role === "user") ? (
               <button
                 type="button"
                 onClick={editLast}
-                className="focus-ring rounded-xl border border-border px-3 py-2.5 text-xs font-semibold hover:bg-secondary"
+                disabled={mutation.isPending}
+                className="focus-ring rounded-xl border border-border px-3 py-2.5 text-xs font-semibold hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Edit answer
               </button>
@@ -247,9 +251,13 @@ function SymptomCheckPage() {
               type="submit"
               disabled={mutation.isPending || !input.trim()}
               className="focus-ring grid size-11 place-items-center rounded-xl bg-teal text-teal-foreground disabled:opacity-40"
-              aria-label="Send message"
+              aria-label={mutation.isPending ? "AI is thinking" : "Send message"}
             >
-              <Send className="size-4" aria-hidden />
+              {mutation.isPending ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <Send className="size-4" aria-hidden />
+              )}
             </button>
           </form>
         ) : (
