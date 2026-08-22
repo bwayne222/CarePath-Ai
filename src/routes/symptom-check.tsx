@@ -48,10 +48,14 @@ function SymptomCheckPage() {
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const requestIdRef = useRef(0);
 
   const mutation = useMutation({
-    mutationFn: (next: ChatTurn[]) => call({ data: { messages: next } }),
-    onSuccess: (turn) => {
+    mutationFn: ({ conversation }: { conversation: ChatTurn[]; requestId: number }) =>
+      call({ data: { messages: conversation } }),
+    retry: false,
+    onSuccess: (turn, variables) => {
+      if (variables.requestId !== requestIdRef.current) return;
       setMessages((prev) => [...prev, { role: "assistant", content: turn.reply }]);
       setQuickReplies(turn.quick_replies ?? []);
       if (turn.phase === "assessment" && turn.assessment) {
@@ -59,12 +63,11 @@ function SymptomCheckPage() {
         setAssessment(turn.assessment);
       }
     },
-    onError: (e: Error) =>
-      setError(
-        e.message.includes("402")
-          ? "AI guidance is temporarily unavailable (AI credits exhausted for this workspace)."
-          : "We couldn't reach the guidance service. Please try again.",
-      ),
+    onError: (error, variables) => {
+      if (variables.requestId !== requestIdRef.current) return;
+      const message = error instanceof Error ? error.message : String(error);
+      setError(formatGuidanceError(message));
+    },
   });
 
   useEffect(() => {
@@ -79,10 +82,16 @@ function SymptomCheckPage() {
     setInput("");
     const next: ChatTurn[] = [...messages, { role: "user", content: value }];
     setMessages(next);
-    mutation.mutate(next.filter((m, i) => !(i === 0 && m.role === "assistant")));
+    const requestId = ++requestIdRef.current;
+    mutation.mutate({
+      conversation: next.filter((m, i) => !(i === 0 && m.role === "assistant")),
+      requestId,
+    });
   }
 
   function restart() {
+    requestIdRef.current += 1;
+    mutation.reset();
     setMessages([{ role: "assistant", content: OPENING }]);
     setQuickReplies([]);
     setLocalAssessment(null);
@@ -172,9 +181,29 @@ function SymptomCheckPage() {
           ) : null}
 
           {error ? (
-            <p className="rounded-xl border border-destructive/40 bg-danger-soft p-3 text-sm text-destructive">
-              {error}
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-danger-soft p-3 text-sm text-destructive">
+              <p>{error}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  const lastUser = [...messages].reverse().find((message) => message.role === "user");
+                  if (!lastUser) return;
+                  const lastUserIndex = messages.lastIndexOf(lastUser);
+                  const conversation = messages.slice(0, lastUserIndex + 1);
+                  setError(null);
+                  const requestId = ++requestIdRef.current;
+                  mutation.mutate({
+                    conversation: conversation.filter(
+                      (message, index) => !(index === 0 && message.role === "assistant"),
+                    ),
+                    requestId,
+                  });
+                }}
+                className="focus-ring rounded-lg border border-destructive/40 px-3 py-1.5 text-xs font-semibold hover:bg-card"
+              >
+                Try again
+              </button>
+            </div>
           ) : null}
 
           {messages.length === 1 && !mutation.isPending ? (
@@ -278,6 +307,25 @@ function SymptomCheckPage() {
       </main>
     </div>
   );
+}
+
+function formatGuidanceError(message: string): string {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("402") || normalized.includes("credit")) {
+    return message || "AI guidance is unavailable because this workspace needs more AI credits.";
+  }
+  if (normalized.includes("403") || normalized.includes("disabled") || normalized.includes("policy")) {
+    return message || "AI guidance is currently disabled for this workspace.";
+  }
+  if (normalized.includes("401") || normalized.includes("lovable_api_key")) {
+    return "AI guidance is not configured correctly. Please contact the app owner.";
+  }
+  if (normalized.includes("429") || normalized.includes("rate limit")) {
+    return "The guidance service is busy right now. Please wait a moment, then try again.";
+  }
+  return message && !normalized.includes("server function")
+    ? message
+    : "The guidance service could not complete this response. Please try again.";
 }
 
 function AssessmentView({
