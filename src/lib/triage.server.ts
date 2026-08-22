@@ -1,4 +1,4 @@
-import { generateText, NoObjectGeneratedError, Output } from "ai";
+import { NoObjectGeneratedError, Output, streamText } from "ai";
 import { z } from "zod";
 import { CHAT_MODEL, createLovableAiGatewayProvider, requireAiKey } from "./ai-gateway.server";
 import type { ChatTurn, ProviderReview, ReviewInsights, TriageTurn } from "./types";
@@ -133,12 +133,17 @@ function extractJson(raw: string): unknown {
 export async function runTriageTurn(messages: ChatTurn[]): Promise<TriageTurn> {
   const gateway = createLovableAiGatewayProvider(requireAiKey());
   try {
-    const { output } = await generateText({
+    // Always stream gateway calls, even though this server function only returns
+    // the completed object. Streaming keeps long model responses alive instead
+    // of leaving one silent request that the platform can cancel with HTTP 499.
+    const result = streamText({
       model: gateway(CHAT_MODEL),
       system: SYSTEM_PROMPT,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
       output: Output.object({ schema: turnSchema }),
+      maxRetries: 2,
     });
+    const output = await result.output;
     return normaliseTurn(output as LooseTurn);
   } catch (error) {
     if (NoObjectGeneratedError.isInstance(error) && error.text) {
@@ -178,11 +183,13 @@ export async function summariseReviews(
   const corpus = usable
     .map((r, i) => `Review ${i + 1} (${r.rating ?? "no"} stars): ${r.text}`)
     .join("\n\n");
-  const { output } = await generateText({
+  const result = streamText({
     model: gateway(CHAT_MODEL),
     system: `You summarise ONLY the patient reviews given to you for a healthcare provider. Never invent facts, never generalise beyond the supplied text, never claim "patients agree". Use cautious phrasing such as "common themes in the available reviews include". If the reviews are too few or too thin to support a theme, say so and set enough_data to false. Keep every bullet under 15 words.`,
     prompt: `Provider: ${providerName}\nNumber of reviews available: ${usable.length}\n\n${corpus}`,
     output: Output.object({ schema: insightsSchema }),
+    maxRetries: 2,
   });
+  const output = await result.output;
   return { ...(output as z.infer<typeof insightsSchema>), reviews_analyzed: usable.length };
 }
