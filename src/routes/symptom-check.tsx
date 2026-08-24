@@ -116,8 +116,8 @@ function SymptomCheckPage() {
     <div className="min-h-screen pb-24 md:pb-0">
       <SiteNav />
       <main className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
-        <div className="flex items-center justify-between gap-3">
-          <div>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+          <div className="min-w-0">
             <h1 className="text-2xl font-bold sm:text-3xl">Symptom Check</h1>
             <p className="text-sm text-muted-foreground">
               Guided questions, then a structured summary. Not a diagnosis.
@@ -126,11 +126,12 @@ function SymptomCheckPage() {
           <button
             type="button"
             onClick={restart}
-            className="focus-ring inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-semibold hover:bg-secondary"
+            className="focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-semibold hover:bg-secondary"
           >
             <RotateCcw className="size-3.5" aria-hidden /> Start over
           </button>
         </div>
+
 
         <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface" aria-hidden>
           <div
