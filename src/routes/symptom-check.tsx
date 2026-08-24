@@ -245,51 +245,58 @@ function SymptomCheckPage() {
               e.preventDefault();
               send(input);
             }}
-            className="sticky bottom-16 mt-5 flex items-end gap-2 rounded-2xl border border-border bg-card p-2 shadow-lift md:bottom-4"
+            className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] mt-5 rounded-2xl border border-border bg-card p-2 shadow-lift md:bottom-4"
           >
             <label htmlFor="symptom-input" className="sr-only">
               Describe your symptoms
             </label>
-            <textarea
-              id="symptom-input"
-              rows={1}
-              value={input}
-              disabled={mutation.isPending}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  send(input);
-                }
-              }}
-              placeholder={
-                mutation.isPending ? "CarePath AI is thinking…" : "Describe what you're experiencing…"
-              }
-              className="focus-ring max-h-32 min-h-11 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-60"
-            />
-            {messages.some((m) => m.role === "user") ? (
-              <button
-                type="button"
-                onClick={editLast}
+            <div className="flex items-end gap-2">
+              <textarea
+                id="symptom-input"
+                rows={2}
+                value={input}
                 disabled={mutation.isPending}
-                className="focus-ring rounded-xl border border-border px-3 py-2.5 text-xs font-semibold hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && window.innerWidth >= 768) {
+                    e.preventDefault();
+                    send(input);
+                  }
+                }}
+                placeholder={
+                  mutation.isPending
+                    ? "CarePath AI is thinking…"
+                    : "Describe what you're experiencing…"
+                }
+                className="focus-ring max-h-32 min-h-11 w-full min-w-0 flex-1 resize-none bg-transparent px-3 py-2.5 text-base outline-none sm:text-sm disabled:cursor-not-allowed disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={mutation.isPending || !input.trim()}
+                className="focus-ring grid size-11 shrink-0 place-items-center rounded-xl bg-teal text-teal-foreground disabled:opacity-40"
+                aria-label={mutation.isPending ? "AI is thinking" : "Send message"}
               >
-                Edit answer
+                {mutation.isPending ? (
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                ) : (
+                  <Send className="size-4" aria-hidden />
+                )}
               </button>
+            </div>
+            {messages.some((m) => m.role === "user") ? (
+              <div className="mt-1 flex justify-start px-1">
+                <button
+                  type="button"
+                  onClick={editLast}
+                  disabled={mutation.isPending}
+                  className="focus-ring rounded-lg px-2 py-1 text-xs font-semibold text-muted-foreground hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Edit answer
+                </button>
+              </div>
             ) : null}
-            <button
-              type="submit"
-              disabled={mutation.isPending || !input.trim()}
-              className="focus-ring grid size-11 place-items-center rounded-xl bg-teal text-teal-foreground disabled:opacity-40"
-              aria-label={mutation.isPending ? "AI is thinking" : "Send message"}
-            >
-              {mutation.isPending ? (
-                <Loader2 className="size-4 animate-spin" aria-hidden />
-              ) : (
-                <Send className="size-4" aria-hidden />
-              )}
-            </button>
           </form>
+
         ) : (
           <AssessmentView
             assessment={assessment}
