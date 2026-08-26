@@ -1,26 +1,56 @@
 import type { Provider, ProviderDetails, ProviderReview, SearchResult } from "./types";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_maps";
+const PLACES_DIRECT = "https://places.googleapis.com/v1";
+const GEOCODE_DIRECT = "https://maps.googleapis.com/maps/api/geocode/json";
 
-function keys() {
-  const lovable = process.env["LOVABLE_API_KEY"];
-  const maps = process.env["GOOGLE_MAPS_API_KEY"];
-  if (!lovable || !maps) {
-    throw new Error(
-      "Healthcare provider data is not configured. The Google Maps connector credentials are missing.",
-    );
-  }
-  return { lovable, maps };
+/**
+ * Two supported modes:
+ * 1. Lovable Google Maps connector (LOVABLE_API_KEY + GOOGLE_MAPS_API_KEY).
+ * 2. Your own Google Cloud key only (GOOGLE_MAPS_API_KEY / GOOGLE_PLACES_API_KEY),
+ *    used when there is no LOVABLE_API_KEY — e.g. on Vercel.
+ */
+function mapsKey(): string | undefined {
+  return process.env["GOOGLE_MAPS_API_KEY"] ?? process.env["GOOGLE_PLACES_API_KEY"];
 }
 
-function authHeaders() {
-  const { lovable, maps } = keys();
+function useGateway(): boolean {
+  return Boolean(process.env["LOVABLE_API_KEY"] && mapsKey());
+}
+
+function requireMapsKey(): string {
+  const maps = mapsKey();
+  if (!maps) {
+    throw new Error(
+      "Healthcare provider data is not configured. Set GOOGLE_MAPS_API_KEY (Places API New + Geocoding API enabled).",
+    );
+  }
+  return maps;
+}
+
+function placesUrl(path: string): string {
+  return useGateway() ? `${GATEWAY}/places/v1/${path}` : `${PLACES_DIRECT}/${path}`;
+}
+
+function geocodeUrl(query: string): string {
+  const address = encodeURIComponent(query);
+  return useGateway()
+    ? `${GATEWAY}/maps/api/geocode/json?address=${address}`
+    : `${GEOCODE_DIRECT}?address=${address}&key=${encodeURIComponent(requireMapsKey())}`;
+}
+
+function authHeaders(): Record<string, string> {
+  const maps = requireMapsKey();
+  if (!useGateway()) {
+    return { "X-Goog-Api-Key": maps, "Content-Type": "application/json" };
+  }
   return {
-    Authorization: `Bearer ${lovable}`,
+    Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]}`,
     "X-Connection-Api-Key": maps,
     "Content-Type": "application/json",
   };
 }
+
 
 async function handleFailure(response: Response): Promise<never> {
   const body = await response.text();
