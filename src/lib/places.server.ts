@@ -198,10 +198,7 @@ function toProvider(
 export async function geocodeLocation(
   query: string,
 ): Promise<{ lat: number; lng: number; label: string } | null> {
-  const res = await fetch(
-    `${GATEWAY}/maps/api/geocode/json?address=${encodeURIComponent(query)}`,
-    { headers: authHeaders() },
-  );
+  const res = await fetch(geocodeUrl(query), { headers: authHeaders() });
   if (!res.ok) await handleFailure(res);
   const json = (await res.json()) as {
     status?: string;
@@ -241,7 +238,7 @@ async function textSearch(
       },
     };
   }
-  const res = await fetch(`${GATEWAY}/places/v1/places:searchText`, {
+  const res = await fetch(placesUrl("places:searchText"), {
     method: "POST",
     headers: {
       ...authHeaders(),
@@ -327,7 +324,7 @@ export async function getProviderDetails(
   specialty: string,
 ): Promise<ProviderDetails> {
   const fields = [...PLACE_FIELDS, "reviews", "editorialSummary"].join(",");
-  const res = await fetch(`${GATEWAY}/places/v1/places/${encodeURIComponent(placeId)}`, {
+  const res = await fetch(placesUrl(`places/${encodeURIComponent(placeId)}`), {
     headers: { ...authHeaders(), "X-Goog-FieldMask": fields },
   });
   if (!res.ok) await handleFailure(res);
@@ -346,7 +343,7 @@ export async function getProviderDetails(
 
 export async function fetchPlacePhoto(photoName: string, maxWidth: number): Promise<Response> {
   const res = await fetch(
-    `${GATEWAY}/places/v1/${photoName}/media?maxWidthPx=${maxWidth}&skipHttpRedirect=true`,
+    placesUrl(`${photoName}/media?maxWidthPx=${maxWidth}&skipHttpRedirect=true`),
     { headers: authHeaders() },
   );
   if (!res.ok) await handleFailure(res);
